@@ -1,0 +1,113 @@
+body, html {
+  background-color: #D8DBE2;
+
+  font-family: Verdana, sans-serif;
+  font-size: 11pt;
+  height: 0;
+  margin: 0 0 0 0;
+  padding: 3px 3px 3px 3px;
+  text-align: center;
+}
+
+h1, h2, p, table {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+
+a:visited {
+  color: blue;
+}
+
+input, button, select {
+  width:100%;
+}
+
+#SelectionTable {
+  margin-left:auto;
+  margin-right:auto;
+  border:1px solid black;
+  /*width:100%;*/
+  text-align: right;
+  padding: 3px 10px 3px 10px;
+  min-width: 100px;
+  background-color: #b5c2e0;
+}
+
+#SelectionTable td{
+  min-width: 150px;
+}
+
+/* because IE */
+#SelectionTable body {
+  text-align:center;
+}
+
+/*CSS for ResultTable in Modal window*/
+#ResultTableData{
+  font-size: 10pt;
+  text-align: center;
+  width: 20px;
+}
+#ResultTableData tr:nth-child(even){
+  background-color: #f2f2f2;
+}
+#ResultTableData tr:nth-child(odd){
+  background-color: #cbcfd8;
+}
+#ResultTableData tr:hover {
+  background-color: #7593d8;
+}
+#ResultTable {
+  margin: 0 0 0 0;
+  padding: 0px 0px 0px 0px;
+  border:0px solid black;
+  border-collapse: collapse;
+}
+#ResultTable th{
+  font-size: 14px;
+  text-align: center;
+  min-width: 30px;
+  max-width: 120px;
+  width: 120px;
+  background-color: #b5c2e0;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
+#ResultTable th:first-child, #ResultTable td:first-child{
+  border-left: 1px solid black;
+}
+#ResultTable th:last-child, #ResultTable td:last-child{
+  border-right: 1px solid black;
+}
+#ResultTable tr:last-child {
+  border-bottom: 1px solid black;
+}
+#ResultTable td{
+  font-size: 1vw;
+  border: 1px solid black;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  border-top: 1px solid black;
+}
+#ResultTable body {
+  text-align:center;
+}
+
+#wrapParent {
+  margin-left:auto;
+  margin-right:auto;
+  height: 600px;
+  width: 733px;
+  overflow: hidden;
+  /*border: 1px solid black;*/
+  border-top: 1px solid black;
+}
+#wrap {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding-right: 50px; /* Increase/decrease this value for cross-browser compatibility */
+  box-sizing: content-box; /* So the width will be 100% + 17px */
+  height: 100%;
+  width: 750px;
+  /*background-color: white;*/
+}
