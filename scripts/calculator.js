@@ -230,3 +230,33 @@ function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, mi
   }
   return returnSS.join("")
 }
+
+function calculate (muzzleVelocity, airFriction, minElev, maxElev, highArc = true) {
+
+
+  minElev = (Math.PI / 180.0) * minElev
+  maxElev = (Math.PI / 180.0) * maxElev
+
+  let getLineIndex = 0
+
+  let {bestAngle, bestDistance} = findMaxAngle(muzzleVelocity, airFriction)
+
+  minElev = Math.max(minElev, 2 * (Math.PI / 180.0)) // cap min to 2 degrees (negative elev might get messy)
+  maxElev = Math.min(maxElev, 88 * (Math.PI / 180.0)) // cap max to 88 degrees (mk6)
+  if (highArc) {
+    minElev = Math.max(minElev, bestAngle)
+  } else {
+    maxElev = Math.min(maxElev, bestAngle)
+  }
+  const loopStart = (bestDistance < 4000) ? 50 : 100
+  const loopInc = (bestDistance < 5000) ? 50 : 100 // simplify when range gets high
+  const loopMaxRange = Math.min(bestDistance, 30000.0) // with no air resistance, max range could go higher than 60km
+
+  let results = []
+  if (maxElev > minElev) { // don't bother if we can't hit anything (e.g. mortar in low mode)
+    for (let range = loopStart; range < loopMaxRange; range += loopInc) {
+      results.push(simulateCalcRangeTableLine(range, muzzleVelocity, airFriction, minElev, maxElev, highArc))
+    }
+  }
+  return results
+}
