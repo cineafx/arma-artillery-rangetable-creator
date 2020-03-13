@@ -1,4 +1,3 @@
-
 const M_PI_4 = Math.PI / 4
 const timeStep = 1.0 / 60
 const rangeSearchErrorMax = 0.001 // ratio * distance
@@ -135,16 +134,17 @@ function simulateFindSolution (rangeToHit, heightToHit, muzzleVelocity, airFrict
 
 /**
  *
+ * @param stringBuilder
  * @param num
  * @param widthInt
  * @param widthDec
  * @returns {string}
  */
-function writeNumber (num, widthInt, widthDec) {
+function writeNumber (stringBuilder, num, widthInt, widthDec) {
   if ((num < 0) && (num > -0.05)) { // hard coded fix -0.0 rounding errors
     num = 0
   }
-  return Number(num).toFixed(widthDec).padStart(widthInt, "0")
+  stringBuilder.push(Number(num).toFixed(widthDec).padStart(widthInt, "0"))
 }
 
 /**
@@ -158,5 +158,77 @@ function writeNumber (num, widthInt, widthDec) {
  * @returns {string}
  */
 function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, minElev, maxElev, highArc) {
-  return ""
+  let {actualDistance, lineElevation, lineTimeOfFlight} = simulateFindSolution(rangeToHit, 0, muzzleVelocity, airFriction, minElev, maxElev, highArc)
+  if (lineTimeOfFlight < 0) {
+    return ""
+  }
+  let {actualDistanceHeight, lineHeightElevation, lineHeightTimeOfFlight} = simulateFindSolution(rangeToHit, -100, muzzleVelocity, airFriction, minElev, maxElev, highArc)
+
+
+  let returnSS = []
+
+  returnSS.push("[\"")
+  writeNumber(returnSS, _rangeToHit, 0, 0)
+  returnSS.push("\",\"")
+  writeNumber(returnSS, lineElevation * 3200.0 / Math.PI, 0, 0)
+  returnSS.push("\",\"")
+
+  if (lineHeightElevation > 0) {
+    const drElevAdjust = lineHeightElevation - lineElevation
+    const drTofAdjust = lineHeightTimeOfFlight - lineTimeOfFlight
+    writeNumber(returnSS, drElevAdjust * 3200.0 / Math.PI, 0, 0)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, drTofAdjust, 0, 1)
+  } else {
+    // low angle shots won't be able to adjust down further
+    returnSS.push("-\",\"-")
+  }
+  returnSS.push("\",\"")
+  writeNumber(returnSS, lineTimeOfFlight, 0, ((lineTimeOfFlight < 99.945) ? 1 : 0)) // round TOF when high
+  returnSS.push("\",\"")
+
+  if (airFriction) {
+    // Calc corrections:
+    let xOffset
+    let yOffset
+    // Crosswind
+    xOffset = simulateShot(lineElevation, muzzleVelocity, 0, 10, 0, 15, 1, airFriction).finalPosX
+    const crosswindOffsetRad = Math.atan2(xOffset, actualDistance) / 10
+    // Headwind
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, -10, 15, 1, airFriction).finalPosY
+    const headwindOffset = (actualDistance - yOffset) / 10
+    // Tailwind
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, 10, 15, 1, airFriction).finalPosY
+    const tailwindOffset = (actualDistance - yOffset) / 10
+    // Air Temp Dec
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, 0, 5, 1, airFriction).finalPosY
+    const tempDecOffset = (actualDistance - yOffset) / 10
+    // Air Temp Inc
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, 0, 25, 1, airFriction).finalPosY
+    const tempIncOffset = (actualDistance - yOffset) / 10
+    // Air Density Dec
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, 0, 15, 0.9, airFriction).finalPosY
+    const airDensityDecOffset = (actualDistance - yOffset) / 10
+    // Air Density Inc
+    yOffset = simulateShot(lineElevation, muzzleVelocity, 0, 0, 0, 15, 1.1, airFriction).finalPosY
+    const airDensityIncOffset = (actualDistance - yOffset) / 10
+
+    writeNumber(returnSS, crosswindOffsetRad * 3200.0 / Math.PI, 1, 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, headwindOffset, 1, (Math.abs(headwindOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, tailwindOffset, 1, (Math.abs(tailwindOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, tempDecOffset, 1, (Math.abs(tempDecOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, tempIncOffset, 1, (Math.abs(tempIncOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, airDensityDecOffset, 1, (Math.abs(airDensityDecOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\",\"")
+    writeNumber(returnSS, airDensityIncOffset, 1, (Math.abs(airDensityIncOffset) > 9.949) ? 0 : 1)
+    returnSS.push("\"]")
+  } else {
+    returnSS.push("-\",\"-\",\"-\",\"-\",\"-\",\"-\",\"-\"]") // 7 dashes
+  }
+  return returnSS.join("")
 }
