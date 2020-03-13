@@ -1,4 +1,3 @@
-const M_PI_4 = Math.PI / 4
 const timeStep = 1.0 / 60
 const rangeSearchErrorMax = 0.001 // ratio * distance
 const rangeSearchAngleConvergance = 0.000025
@@ -33,9 +32,8 @@ function simulateShot (fireAngleRad, muzzleVelocity, heightOfTarget, crossWind, 
     lastPosition = currentPosition
     let apparentWind = Vector3.subtract(wind, currentVelocity)
     let changeInVelocity = Vector3.add(gravityAccl, Vector3.multiply(apparentWind, Vector3.multiply(kCoefficient, apparentWind.magnitude)))
-    changeInVelocity = gravityAccl + apparentWind * (kCoefficient * apparentWind.magnitude())
-    currentVelocity += changeInVelocity * timeStep
-    currentPosition += currentVelocity * timeStep
+    currentVelocity = Vector3.add(changeInVelocity, Vector3.multiply(changeInVelocity, timeStep))
+    currentPosition = Vector3.add(currentVelocity, Vector3.multiply(currentVelocity, timeStep))
     currentTime += timeStep
   }
 
@@ -54,13 +52,13 @@ function simulateShot (fireAngleRad, muzzleVelocity, heightOfTarget, crossWind, 
 function findMaxAngle (muzzleVelocity, airFriction) {
   // retrns: angle that goes the furthest, max distance traveled
   if (airFriction === 0) {
-    return {bestAngle: M_PI_4, bestDistance: muzzleVelocity * muzzleVelocity / gravityABS}
+    return {bestAngle: (Math.PI / 4), bestDistance: muzzleVelocity * muzzleVelocity / gravityABS}
   }
   // With air resitsnce, max distance angle won't be 45 degrees
-  let bestAngle = M_PI_4
+  let bestAngle = Math.PI / 4
   let bestDistance = -1
-  for (let testAngle = M_PI_4; testAngle > 0; testAngle -= (M_PI_4 / 100.0)) {
-    let {_ignore1, testResultDist, _ignore3} = simulateShot(testAngle, muzzleVelocity, 0, 0, 0, 15, 1, airFriction)
+  for (let testAngle = Math.PI / 4; testAngle > 0; testAngle -= ((Math.PI / 4) / 100.0)) {
+    let testResultDist = simulateShot(testAngle, muzzleVelocity, 0, 0, 0, 15, 1, airFriction).finalPosY
     if (testResultDist > bestDistance) {
       bestAngle = testAngle
       bestDistance = testResultDist
@@ -113,7 +111,7 @@ function simulateFindSolution (rangeToHit, heightToHit, muzzleVelocity, airFrict
       break
     } // for safetey, min/max should converge long before
     currentElevation = (searchMin + searchMax) / 2.0
-    let {_ignore1, resultDistance, resultTime} = simulateShot(currentElevation, muzzleVelocity, heightToHit, 0, 0, 15, 1, airFriction)
+    let resultDistance = simulateShot(currentElevation, muzzleVelocity, heightToHit, 0, 0, 15, 1, airFriction).finalPosY
     currentError = rangeToHit - resultDistance
     // printf("elev %f [%f, %f]range%f\n goes %f [%f]\n", currentElevation, searchMin, searchMax, (searchMax - searchMin), resultDistance, currentError);
     if ((currentError > 0) ^ (!highArc)) {
@@ -168,7 +166,7 @@ function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, mi
   let returnSS = []
 
   returnSS.push("[\"")
-  writeNumber(returnSS, _rangeToHit, 0, 0)
+  writeNumber(returnSS, rangeToHit, 0, 0)
   returnSS.push("\",\"")
   writeNumber(returnSS, lineElevation * 3200.0 / Math.PI, 0, 0)
   returnSS.push("\",\"")
