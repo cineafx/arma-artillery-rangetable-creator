@@ -1,4 +1,4 @@
-const timeStep = 1.0 / 60
+const timeStep = 1.0 / 60.0
 const rangeSearchErrorMax = 0.001 // ratio * distance
 const rangeSearchAngleConvergance = 0.000025
 const gravityABS = 9.8066
@@ -23,17 +23,17 @@ function simulateShot (fireAngleRad, muzzleVelocity, heightOfTarget, crossWind, 
   const powderEffects = (airFriction) ? ((temperature + 273.13) / 288.13 - 1) / 40 + 1 : 1.0
 
   let currentTime = 0
-  let currentPosition = new vector3(0, 0, 0)
-  let lastPosition = new vector3(currentPosition.x, currentPosition.y, currentPosition.z)
-  let currentVelocity = new vector3(0, powderEffects * muzzleVelocity * Math.cos(fireAngleRad), powderEffects * muzzleVelocity * Math.sin(fireAngleRad))
-  const wind = new vector3(crossWind, tailWind, 0)
+  let currentPosition = new Vector3(0, 0, 0)
+  let lastPosition = new Vector3(currentPosition.x, currentPosition.y, currentPosition.z)
+  let currentVelocity = new Vector3(0, powderEffects * muzzleVelocity * Math.cos(fireAngleRad), powderEffects * muzzleVelocity * Math.sin(fireAngleRad))
+  const wind = new Vector3(crossWind, tailWind, 0)
 
   while ((currentVelocity.z > 0) || (currentPosition.z >= heightOfTarget)) {
     lastPosition = currentPosition
     let apparentWind = Vector3.subtract(wind, currentVelocity)
-    let changeInVelocity = Vector3.add(gravityAccl, Vector3.multiply(apparentWind, Vector3.multiply(kCoefficient, apparentWind.magnitude)))
-    currentVelocity = Vector3.add(changeInVelocity, Vector3.multiply(changeInVelocity, timeStep))
-    currentPosition = Vector3.add(currentVelocity, Vector3.multiply(currentVelocity, timeStep))
+    let changeInVelocity = Vector3.add(gravityAccl, Vector3.multiply(apparentWind, kCoefficient * apparentWind.magnitude))
+    currentVelocity = Vector3.add(currentVelocity, Vector3.multiply(changeInVelocity, timeStep))
+    currentPosition = Vector3.add(currentPosition, Vector3.multiply(currentVelocity, timeStep))
     currentTime += timeStep
   }
 
@@ -111,7 +111,9 @@ function simulateFindSolution (rangeToHit, heightToHit, muzzleVelocity, airFrict
       break
     } // for safetey, min/max should converge long before
     currentElevation = (searchMin + searchMax) / 2.0
-    let resultDistance = simulateShot(currentElevation, muzzleVelocity, heightToHit, 0, 0, 15, 1, airFriction).finalPosY
+    let shot = simulateShot(currentElevation, muzzleVelocity, heightToHit, 0, 0, 15, 1, airFriction)
+    resultDistance = shot.finalPosY
+    resultTime = shot.currentTime
     currentError = rangeToHit - resultDistance
     // printf("elev %f [%f, %f]range%f\n goes %f [%f]\n", currentElevation, searchMin, searchMax, (searchMax - searchMin), resultDistance, currentError);
     if ((currentError > 0) ^ (!highArc)) {
@@ -153,37 +155,32 @@ function writeNumber (stringBuilder, num, widthInt, widthDec) {
  * @param minElev
  * @param maxElev
  * @param highArc
- * @returns {string}
+ * @returns {[string, string, string, string, string, string, string, string, string, string, string, string]}
  */
 function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, minElev, maxElev, highArc) {
-  let {actualDistance, lineElevation, lineTimeOfFlight} = simulateFindSolution(rangeToHit, 0, muzzleVelocity, airFriction, minElev, maxElev, highArc)
+  let {resultDistance: actualDistance, currentElevation: lineElevation, resultTime: lineTimeOfFlight} = simulateFindSolution(rangeToHit, 0, muzzleVelocity, airFriction, minElev, maxElev, highArc)
   if (lineTimeOfFlight < 0) {
-    return ""
+    return [rangeToHit, "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"]
   }
   let {actualDistanceHeight, lineHeightElevation, lineHeightTimeOfFlight} = simulateFindSolution(rangeToHit, -100, muzzleVelocity, airFriction, minElev, maxElev, highArc)
 
 
   let returnSS = []
 
-  returnSS.push("[\"")
   writeNumber(returnSS, rangeToHit, 0, 0)
-  returnSS.push("\",\"")
   writeNumber(returnSS, lineElevation * 3200.0 / Math.PI, 0, 0)
-  returnSS.push("\",\"")
 
   if (lineHeightElevation > 0) {
     const drElevAdjust = lineHeightElevation - lineElevation
     const drTofAdjust = lineHeightTimeOfFlight - lineTimeOfFlight
     writeNumber(returnSS, drElevAdjust * 3200.0 / Math.PI, 0, 0)
-    returnSS.push("\",\"")
     writeNumber(returnSS, drTofAdjust, 0, 1)
   } else {
     // low angle shots won't be able to adjust down further
-    returnSS.push("-\",\"-")
+    returnSS.push("-")
+    returnSS.push("-")
   }
-  returnSS.push("\",\"")
   writeNumber(returnSS, lineTimeOfFlight, 0, ((lineTimeOfFlight < 99.945) ? 1 : 0)) // round TOF when high
-  returnSS.push("\",\"")
 
   if (airFriction) {
     // Calc corrections:
@@ -212,32 +209,24 @@ function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, mi
     const airDensityIncOffset = (actualDistance - yOffset) / 10
 
     writeNumber(returnSS, crosswindOffsetRad * 3200.0 / Math.PI, 1, 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, headwindOffset, 1, (Math.abs(headwindOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, tailwindOffset, 1, (Math.abs(tailwindOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, tempDecOffset, 1, (Math.abs(tempDecOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, tempIncOffset, 1, (Math.abs(tempIncOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, airDensityDecOffset, 1, (Math.abs(airDensityDecOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\",\"")
     writeNumber(returnSS, airDensityIncOffset, 1, (Math.abs(airDensityIncOffset) > 9.949) ? 0 : 1)
-    returnSS.push("\"]")
   } else {
-    returnSS.push("-\",\"-\",\"-\",\"-\",\"-\",\"-\",\"-\"]") // 7 dashes
+    // 7 dashes
+    for (let i = 0; i < 7; i++) {
+      returnSS.push("-")
+    }
   }
-  return returnSS.join("")
+  return returnSS
 }
 
 function calculate (muzzleVelocity, airFriction, minElev, maxElev, highArc = true) {
-
-
   minElev = (Math.PI / 180.0) * minElev
   maxElev = (Math.PI / 180.0) * maxElev
-
-  let getLineIndex = 0
 
   let {bestAngle, bestDistance} = findMaxAngle(muzzleVelocity, airFriction)
 
@@ -251,10 +240,12 @@ function calculate (muzzleVelocity, airFriction, minElev, maxElev, highArc = tru
   const loopStart = (bestDistance < 4000) ? 50 : 100
   const loopInc = (bestDistance < 5000) ? 50 : 100 // simplify when range gets high
   const loopMaxRange = Math.min(bestDistance, 30000.0) // with no air resistance, max range could go higher than 60km
+  console.log(bestAngle, bestDistance)
 
   let results = []
   if (maxElev > minElev) { // don't bother if we can't hit anything (e.g. mortar in low mode)
     for (let range = loopStart; range < loopMaxRange; range += loopInc) {
+      console.log(range, loopStart, loopMaxRange, loopInc)
       results.push(simulateCalcRangeTableLine(range, muzzleVelocity, airFriction, minElev, maxElev, highArc))
     }
   }

@@ -4,106 +4,6 @@
   <meta charset="utf-8">
   <title>Artillery rangetable creator</title>
   <link rel="stylesheet" type="text/css" href="design/style.css">
-  <script type="text/javascript" src="data/vehicles.js"></script>
-  <script type="text/javascript" src="scripts/Vector3.js"></script>
-  <script type="text/javascript" src="scripts/calculator.js"></script>
-  <script type="text/javascript" src="scripts/contentLoader.js"></script>
-  <script type="text/javascript">
-
-    function updateArtyList () {
-      let data = {type: "getArtyList", data: {}}
-      apiRequest(data, (jsonReturnObj) => {
-        if (jsonReturnObj.type !== "getArtyList") {
-          //TODO error handling
-          return
-        }
-        jsonReturnObjData = jsonReturnObj.data
-
-        var list = document.getElementById('artyType')
-        list.options.length = 0
-        var option = document.createElement("option")
-        option.value = -1
-        option.text = "--------------------"
-        list.add(option)
-
-        for (varX of jsonReturnObjData) {
-          option = document.createElement("option")
-          option.value = parseInt(varX.id)
-          option.text = varX.name
-          list.add(option)
-        }
-        updateChargeList()
-      })
-    }
-
-    updateArtyList()
-
-    function updateChargeList () {
-      var artyType = document.getElementById("artyType").value
-      let data = {type: "getCharges", data: {mortarID: artyType}}
-      if (parseInt(artyType) === -1) {
-        var list = document.getElementById('charges')
-        list.options.length = 0
-        var option = document.createElement("option")
-        option.value = -1
-        option.text = "--------------------"
-        list.add(option)
-      } else {
-        apiRequest(data, (jsonReturnObj) => {
-          if (jsonReturnObj.type !== "getCharges") {
-            //TODO error handling
-            return
-          }
-          jsonReturnObjData = jsonReturnObj.data
-          var list = document.getElementById('charges')
-          list.options.length = 0
-          for (varX of jsonReturnObjData) {
-            var option = document.createElement("option")
-            option.value = parseInt(varX.chargeNR)
-            option.text = parseInt(varX.chargeNR)
-            list.add(option)
-          }
-        })
-      }
-    }
-
-    function fillTable () {
-      var artyType = document.getElementById("artyType").value
-      var charges = document.getElementById("charges").value
-      var airResistanceEnabled = document.getElementById("airResistanceEnabled").checked
-      let data = {
-        type: "getTable",
-        data: {mortarID: artyType, charges: charges, airResistanceEnabled: airResistanceEnabled}
-      }
-      apiRequest(data, (jsonReturnObj) => {
-        if (jsonReturnObj.type !== "getTable") {
-          //TODO error handling
-          return
-        }
-        jsonReturnObjData = jsonReturnObj.data
-        var resultTableBody = document.getElementById("ResultTableData")
-        resultTableBody.innerHTML = ""
-        for (i = 0; i < jsonReturnObjData.length; i++) {
-          var y = document.createElement("tr")
-          resultTableBody.appendChild(y)
-          let options = ['range', 'elevation', 'heightElevation',
-            'heightTimeDelta', 'timeOfFlight', 'crosswindDeg', 'headwindMeters',
-            'tailWindMeters', 'tempDec', 'tempInc', 'airDensDec', 'airDensInc']
-          options.forEach((element) => {
-            if (!jsonReturnObjData[i][element].includes(".") && ['heightTimeDelta', 'timeOfFlight', 'crosswindDeg', 'headwindMeters',
-              'tailWindMeters', 'tempDec', 'tempInc', 'airDensDec', 'airDensInc'].includes(element)) {
-              jsonReturnObjData[i][element] = jsonReturnObjData[i][element] + ".0"
-            }
-            var z = document.createElement("td")
-            var t = document.createTextNode(jsonReturnObjData[i][element])
-            z.appendChild(t)
-            y.appendChild(z)
-          })
-        }
-      })
-    }
-
-  </script>
 </head>
 <body>
 <h1>[WIP] Artillery rangetable creator</h1>
@@ -113,13 +13,13 @@
   <tr>
     <td><label for="artyType">Artillery preset</label></td>
     <td>
-      <select id="artyType" onchange="update()"></select>
+      <select id="artyType" onchange="loadCharges()"></select>
     </td>
   </tr>
   <tr>
     <td><label for="charges">Charges</label></td>
     <td>
-      <select id="charges" onchange="update()"></select>
+      <select id="charges" onchange="updateFromPreset()"></select>
     </td>
   </tr>
   <tr>
@@ -129,12 +29,12 @@
     <td style="padding: 0 0 0 0">
       <input type="checkbox" id="airResistanceEnabled" value="airResistanceEnabled"
              style="width: 100%; height: 20px;"
-             checked onchange="update()">
+             checked onchange="updateFromPreset()">
     </td>
   </tr>
   <tr>
     <td colspan="2">
-      <button onclick="update()">
+      <button onclick="updateFromPreset()">
         Reload data from preset
       </button>
     </td>
@@ -228,6 +128,10 @@
   </div>
 </div>
 </body>
+<script type="text/javascript" src="data/vehicles.js"></script>
+<script type="text/javascript" src="scripts/Vector3.js"></script>
+<script type="text/javascript" src="scripts/calculator.js"></script>
+<script type="text/javascript" src="scripts/contentLoader.js"></script>
 <script>
   document.getElementById("wrap").addEventListener("scroll", function () {
     var translate = "translate(0," + this.scrollTop + "px)"

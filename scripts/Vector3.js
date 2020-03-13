@@ -10,28 +10,28 @@ const Vector3 = class vector3 {
     if (typeof right === "number") {
       return new Vector3(left.x + right, left.y + right, left.z + right)
     }
-    return new Vector3(left.x + right.x, left.y + right.x, left.z + right.z)
+    return new Vector3(left.x + right.x, left.y + right.y, left.z + right.z)
   }
 
   static subtract (left, right) {
     if (typeof right === "number") {
       return new Vector3(left.x - right, left.y - right, left.z - right)
     }
-    return new Vector3(left.x - right.x, left.y - right.x, left.z - right.z)
+    return new Vector3(left.x - right.x, left.y - right.y, left.z - right.z)
   }
 
   static multiply (left, right) {
     if (typeof right === "number") {
       return new Vector3(left.x * right, left.y * right, left.z * right)
     }
-    return new Vector3(left.x * right.x, left.y * right.x, left.z * right.z)
+    return new Vector3(left.x * right.x, left.y * right.y, left.z * right.z)
   }
 
   static divide (left, right) {
     if (typeof right === "number") {
       return new Vector3(left.x / right, left.y / right, left.z / right)
     }
-    return new Vector3(left.x / right.x, left.y / right.x, left.z / right.z)
+    return new Vector3(left.x / right.x, left.y / right.y, left.z / right.z)
   }
 
   static negate (self) {
