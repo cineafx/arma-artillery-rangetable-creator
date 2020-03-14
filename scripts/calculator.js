@@ -36,10 +36,12 @@ function simulateShot (fireAngleRad, muzzleVelocity, heightOfTarget, crossWind, 
     currentPosition = Vector3.add(currentPosition, Vector3.multiply(currentVelocity, timeStep))
     currentTime += timeStep
   }
+  //TODO: there is some huge error in here
 
   const lastCurrentRatio = (heightOfTarget - currentPosition.z) / (lastPosition.z - currentPosition.z)
   let finalPos = Vector3.lerp(lastPosition, currentPosition, lastCurrentRatio)
 
+  console.log(fireAngleRad * 180 / Math.PI, muzzleVelocity, heightOfTarget, crossWind, tailWind, temperature, airDensity, airFriction, finalPos.y)
   return {finalPosX: finalPos.x, finalPosY: finalPos.y, currentTime}
 }
 
@@ -63,6 +65,7 @@ function findMaxAngle (muzzleVelocity, airFriction) {
       bestAngle = testAngle
       bestDistance = testResultDist
     }
+    //console.log(Math.round(bestAngle * 180 / Math.PI), Math.round(bestDistance), Math.round(testResultDist))
   }
   return {bestAngle, bestDistance}
 }
@@ -160,9 +163,9 @@ function writeNumber (stringBuilder, num, widthInt, widthDec) {
 function simulateCalcRangeTableLine (rangeToHit, muzzleVelocity, airFriction, minElev, maxElev, highArc) {
   let {resultDistance: actualDistance, currentElevation: lineElevation, resultTime: lineTimeOfFlight} = simulateFindSolution(rangeToHit, 0, muzzleVelocity, airFriction, minElev, maxElev, highArc)
   if (lineTimeOfFlight < 0) {
-    return [rangeToHit, "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+    return []
   }
-  let {actualDistanceHeight, lineHeightElevation, lineHeightTimeOfFlight} = simulateFindSolution(rangeToHit, -100, muzzleVelocity, airFriction, minElev, maxElev, highArc)
+  let {resultDistance: actualDistanceHeight, currentElevation: lineHeightElevation, resultTime: lineHeightTimeOfFlight} = simulateFindSolution(rangeToHit, -100, muzzleVelocity, airFriction, minElev, maxElev, highArc)
 
 
   let returnSS = []
@@ -240,13 +243,14 @@ function calculate (muzzleVelocity, airFriction, minElev, maxElev, highArc = tru
   const loopStart = (bestDistance < 4000) ? 50 : 100
   const loopInc = (bestDistance < 5000) ? 50 : 100 // simplify when range gets high
   const loopMaxRange = Math.min(bestDistance, 30000.0) // with no air resistance, max range could go higher than 60km
-  console.log(bestAngle, bestDistance)
 
   let results = []
   if (maxElev > minElev) { // don't bother if we can't hit anything (e.g. mortar in low mode)
     for (let range = loopStart; range < loopMaxRange; range += loopInc) {
-      console.log(range, loopStart, loopMaxRange, loopInc)
-      results.push(simulateCalcRangeTableLine(range, muzzleVelocity, airFriction, minElev, maxElev, highArc))
+      let line = simulateCalcRangeTableLine(range, muzzleVelocity, airFriction, minElev, maxElev, highArc)
+      if (line.length > 0) {
+        results.push(line)
+      }
     }
   }
   return results

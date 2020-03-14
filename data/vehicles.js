@@ -6,7 +6,6 @@ const vehicles = [
     "initSpeed": 200,
     "elevMin": 45,
     "elevMax": 88,
-    "applyCorrections": true,
     "charges": [0.35, 0.7, 1]
   },
   {
@@ -14,8 +13,8 @@ const vehicles = [
     "name": "L16",
     "airFrictionIfUsed": -0.0001,
     "initSpeed": 200,
-    "elevMin": 0,
-    "elevMax": 0,
+    "elevMin": 45,
+    "elevMax": 88,
     "charges": [0.35, 0.7, 1]
   },
   {
