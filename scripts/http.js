@@ -11,8 +11,8 @@ function apiRequest (jsonSendObj, returnFunction) {
   xmlhttp.timeout = 2000    //increased timeout to fix timeout problem
   xmlhttp.ontimeout = function () {
     // TODO: fix the timeout problems
-    console.log("Timeout ERROR!!!!!");
-    alert("TIMEOUT ERROR\nPlease try again!");
+    console.log("Timeout ERROR!!!!!")
+    alert("TIMEOUT ERROR\nPlease try again!")
   }
 
   xmlhttp.onreadystatechange = function () {
@@ -31,7 +31,7 @@ function apiRequest (jsonSendObj, returnFunction) {
         returnFunction(jsonReturnObj)
       } else {
         console.log('%cERROR during JSON parse: ', 'color:red', 'Not a valid JSON string: ')
-        console.log({ 'error': this.responseText })
+        console.log({'error': this.responseText})
       }
     }
   }
@@ -50,7 +50,7 @@ function apiRequest (jsonSendObj, returnFunction) {
     console.log('%cSEND: ', 'color: blue', jsonSendObj)
   } else {
     console.log('%cERROR while sending: ', 'color:red', 'Not a valid JSON string: ')
-    console.log( { 'error': jsonSendStr} )
+    console.log({'error': jsonSendStr})
   }
 }
 
@@ -63,7 +63,9 @@ function apiRequest (jsonSendObj, returnFunction) {
 function isJSON (str) {
   //is variable empty
   if (str) {
-    if (/^\s*$/.test(str)) { return false }
+    if (/^\s*$/.test(str)) {
+      return false
+    }
     str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@') //eslint-disable-line
     str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']') //eslint-disable-line
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '')

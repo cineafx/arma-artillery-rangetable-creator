@@ -1,193 +1,144 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Artillery rangetable creator</title>
-    <link rel="stylesheet" type="text/css" href="design/style.css">
-    <script type="text/javascript" src="scripts/http.js"></script>
-    <script type="text/javascript">
-
-      function updateArtyList() {
-        let data = {type: "getArtyList", data: {}}
-        apiRequest(data, (jsonReturnObj) => {
-          if (jsonReturnObj.type !== "getArtyList") {
-            //TODO error handling
-            return
-          }
-          jsonReturnObjData = jsonReturnObj.data
-
-          var list = document.getElementById('artyType')
-          list.options.length = 0
-          var option = document.createElement("option")
-          option.value = -1
-          option.text = "--------------------"
-          list.add(option)
-
-          for (varX of jsonReturnObjData) {
-            option = document.createElement("option")
-            option.value = parseInt(varX.id)
-            option.text = varX.name
-            list.add(option)
-          }
-          updateChargeList()
-        })
-      }
-
-      updateArtyList()
-
-      function updateChargeList() {
-        var artyType = document.getElementById("artyType").value
-        let data = {type: "getCharges", data: {mortarID:artyType}}
-        if (parseInt(artyType) === -1) {
-          var list = document.getElementById('charges')
-          list.options.length = 0
-          var option = document.createElement("option")
-          option.value = -1
-          option.text = "--------------------"
-          list.add(option)
-        } else {
-          apiRequest(data, (jsonReturnObj) => {
-            if (jsonReturnObj.type !== "getCharges") {
-              //TODO error handling
-              return
-            }
-            jsonReturnObjData = jsonReturnObj.data
-            var list = document.getElementById('charges')
-            list.options.length = 0
-            for (varX of jsonReturnObjData) {
-              var option = document.createElement("option")
-              option.value = parseInt(varX.chargeNR)
-              option.text = parseInt(varX.chargeNR)
-              list.add(option)
-            }
-          })
-        }
-      }
-
-      function fillTable() {
-        var artyType = document.getElementById("artyType").value
-        var charges = document.getElementById("charges").value
-        var airResistanceEnabled = document.getElementById("airResistanceEnabled").checked
-        let data = {type: "getTable", data: {mortarID: artyType, charges: charges, airResistanceEnabled: airResistanceEnabled}}
-        apiRequest(data, (jsonReturnObj) => {
-          if (jsonReturnObj.type !== "getTable") {
-            //TODO error handling
-            return
-          }
-          jsonReturnObjData = jsonReturnObj.data
-          var resultTableBody = document.getElementById("ResultTableData")
-          resultTableBody.innerHTML = ""
-          for(i = 0; i<jsonReturnObjData.length; i++){
-            var y = document.createElement("tr")
-            resultTableBody.appendChild(y)
-            let options = ['range', 'elevation', 'heightElevation',
-            'heightTimeDelta', 'timeOfFlight', 'crosswindDeg', 'headwindMeters',
-            'tailWindMeters', 'tempDec', 'tempInc', 'airDensDec', 'airDensInc']
-            options.forEach((element) => {
-              if (!jsonReturnObjData[i][element].includes(".") && ['heightTimeDelta', 'timeOfFlight', 'crosswindDeg', 'headwindMeters',
-              'tailWindMeters', 'tempDec', 'tempInc', 'airDensDec', 'airDensInc'].includes(element)) {
-                jsonReturnObjData[i][element] = jsonReturnObjData[i][element] + ".0"
-              }
-              var z = document.createElement("td")
-              var t = document.createTextNode(jsonReturnObjData[i][element])
-              z.appendChild(t)
-              y.appendChild(z)
-            })
-          }
-        })
-      }
-
-    </script>
-  </head>
-  <body>
-    <h1>[WIP] Artillery rangetable creator</h1>
-    <br>
-    <br>
-    <br>
-    <table id="SelectionTable">
+<head>
+  <meta charset="utf-8">
+  <title>Artillery rangetable creator</title>
+  <link rel="stylesheet" type="text/css" href="design/style.css">
+</head>
+<body>
+<h1>[WIP] Artillery rangetable creator</h1>
+<br>
+<table id="SelectionTable">
+  <tr>
+    <td><label for="artyType">Artillery preset</label></td>
+    <td>
+      <select id="artyType" onchange="loadCharges()"></select>
+    </td>
+  </tr>
+  <tr>
+    <td><label for="charges">Charges</label></td>
+    <td>
+      <select id="charges" onchange="updateFromPreset()"></select>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <label for="airResistanceEnabled">Air resistance enabled</label>
+    </td>
+    <td style="padding: 0 0 0 0">
+      <input type="checkbox" id="airResistanceEnabled" value="airResistanceEnabled"
+             style="width: 100%; height: 20px;"
+             checked onchange="updateFromPreset()">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <button onclick="updateFromPreset()">
+        Reload data from preset
+      </button>
+    </td>
+  </tr>
+  <tr style="height: 5px"></tr>
+  <tr>
+    <td><label for="muzzleVelocity">Muzzle velocity</label></td>
+    <td>
+      <input type="number" id="muzzleVelocity">
+    </td>
+  </tr>
+  <tr>
+    <td><label for="airFriction">Air Friction</label></td>
+    <td>
+      <input type="number" id="airFriction" value="0">
+    </td>
+  </tr>
+  <tr>
+    <td><label for="elevMin">Minimum gun elevation</label></td>
+    <td>
+      <input type="number" id="elevMin" value="0">
+    </td>
+  </tr>
+  <tr>
+    <td><label for="elevMax">Maximum gun elevation</label></td>
+    <td>
+      <input type="number" id="elevMax" value="90">
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <label for="highArc">High arc</label>
+    </td>
+    <td style="padding: 0 0 0 0">
+      <input type="checkbox" id="highArc" value="highArc"
+             style="width: 100%; height: 20px;"
+             checked >
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <button onclick="updateManual()">
+        Calculate manual values
+      </button>
+    </td>
+  </tr>
+</table>
+<br>
+<div id="wrapParent">
+  <div id="wrap">
+    <table id="ResultTable">
       <tr>
-        <td>Artillery preset</td>
-        <td>
-          <select id="artyType" onchange="updateChargeList()"></select>
-        </td>
+        <th rowspan="3">RANGE</th>
+        <th rowspan="3">ELEV</th>
+        <th rowspan="3">D ELEV PER 100M DR</th>
+        <th rowspan="3">TIME OF FLIGHT PER 100M DR</th>
+        <th rowspan="3">TIME OF FLIGHT</th>
+        <th rowspan="3">AZIMUTH CORRECTION CROSSWIND OF 1 MPS</th>
+        <th colspan="6">RANGE CORRECTION FOR</th>
       </tr>
       <tr>
-        <td>Charges</td>
-        <td>
-          <select id="charges"></select>
-        </td>
+        <th colspan="2">RANGE WIND 1 MPS</th>
+        <th colspan="2">AIR TEMP (15° STD) 1 DEG</th>
+        <th colspan="2">AIR DENSITY 1 PCT</th>
       </tr>
       <tr>
-        <td>
-          <label for="airResistanceEnabled">Air resistance enabled</label>
-        </td>
-        <td style="padding: 0 0 0 0">
-          <input type="checkbox" id="airResistanceEnabled" value="airResistanceEnabled" style="width: 100%; height: 20px;" checked>
-        </td>
+        <th>HEAD</th>
+        <th>TAIL</th>
+        <th>DEC</th>
+        <th>INC</th>
+        <th>DEC</th>
+        <th>INC</th>
       </tr>
       <tr>
-        <td colspan="2">
-          <button id="" onclick="fillTable()" >
-            Get data from preset
-          </button>
-        </td>
+        <th>M</th>
+        <th>MIL</th>
+        <th>MIL</th>
+        <th>SEC</th>
+        <th>SEC</th>
+        <th>MIL</th>
+        <th>M</th>
+        <th>M</th>
+        <th>M</th>
+        <th>M</th>
+        <th>M</th>
+        <th>M</th>
       </tr>
+      <tbody id="ResultTableData">
+      </tbody>
     </table>
-    <br>
-    <br>
-    <div id="wrapParent">
-      <div id="wrap">
-        <table id="ResultTable">
-          <tr>
-            <th rowspan="3">RANGE</th>
-            <th rowspan="3">ELEV</th>
-            <th rowspan="3">D ELEV PER 100M DR</th>
-            <th rowspan="3">TIME OF FLIGHT PER 100M DR</th>
-            <th rowspan="3">TIME OF FLIGHT</th>
-            <th rowspan="3">AZIMUTH CORRECTION CROSSWIND OF 1 MPS</th>
-            <th colspan="6">RANGE CORRECTION FOR</th>
-          </tr>
-          <tr>
-            <th colspan="2">RANGE WIND 1 MPS</th>
-            <th colspan="2">AIR TEMP (15° STD) 1 DEG</th>
-            <th colspan="2">AIR DENSITY 1 PCT</th>
-          </tr>
-          <tr>
-            <th>HEAD</th>
-            <th>TAIL</th>
-            <th>DEC</th>
-            <th>INC</th>
-            <th>DEC</th>
-            <th>INC</th>
-          </tr>
-          <tr>
-            <th>M</th>
-            <th>MIL</th>
-            <th>MIL</th>
-            <th>SEC</th>
-            <th>SEC</th>
-            <th>MIL</th>
-            <th>M</th>
-            <th>M</th>
-            <th>M</th>
-            <th>M</th>
-            <th>M</th>
-            <th>M</th>
-          </tr>
-          <tbody id="ResultTableData">
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </body>
-  <script>
-    document.getElementById("wrap").addEventListener("scroll",function(){
-      var translate = "translate(0,"+this.scrollTop+"px)";
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="data/vehicles.js"></script>
+<script type="text/javascript" src="scripts/Vector3.js"></script>
+<script type="text/javascript" src="scripts/calculator.js"></script>
+<script type="text/javascript" src="scripts/contentLoader.js"></script>
+<script>
+  document.getElementById("wrap").addEventListener("scroll", function () {
+    var translate = "translate(0," + this.scrollTop + "px)"
 
-      const allTh = this.querySelectorAll("th");
-      for( let i=0; i < allTh.length; i++ ) {
-        allTh[i].style.transform = translate;
-      }
-    });
-  </script>
+    const allTh = this.querySelectorAll("th")
+    for (let i = 0; i < allTh.length; i++) {
+      allTh[i].style.transform = translate
+    }
+  })
+</script>
 </html>

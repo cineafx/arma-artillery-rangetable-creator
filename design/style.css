@@ -18,14 +18,18 @@ a:visited {
   color: blue;
 }
 
-input, button, select {
-  width:100%;
+input[type="text"], input[type="number"], button, select {
+  width: 100%;
+}
+
+input, select {
+  text-align: center;
 }
 
 #SelectionTable {
-  margin-left:auto;
-  margin-right:auto;
-  border:1px solid black;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid black;
   /*width:100%;*/
   text-align: right;
   padding: 3px 10px 3px 10px;
@@ -33,37 +37,42 @@ input, button, select {
   background-color: #b5c2e0;
 }
 
-#SelectionTable td{
+#SelectionTable td {
   min-width: 150px;
 }
 
 /* because IE */
 #SelectionTable body {
-  text-align:center;
+  text-align: center;
 }
 
 /*CSS for ResultTable in Modal window*/
-#ResultTableData{
+#ResultTableData {
   font-size: 10pt;
   text-align: center;
   width: 20px;
 }
-#ResultTableData tr:nth-child(even){
+
+#ResultTableData tr:nth-child(even) {
   background-color: #f2f2f2;
 }
-#ResultTableData tr:nth-child(odd){
+
+#ResultTableData tr:nth-child(odd) {
   background-color: #cbcfd8;
 }
+
 #ResultTableData tr:hover {
   background-color: #7593d8;
 }
+
 #ResultTable {
   margin: 0 0 0 0;
-  padding: 0px 0px 0px 0px;
-  border:0px solid black;
+  padding: 0 0 0 0;
+  border: 0 solid black;
   border-collapse: collapse;
 }
-#ResultTable th{
+
+#ResultTable th {
   font-size: 14px;
   text-align: center;
   min-width: 30px;
@@ -73,35 +82,41 @@ input, button, select {
   border-left: 1px solid black;
   border-right: 1px solid black;
 }
-#ResultTable th:first-child, #ResultTable td:first-child{
+
+#ResultTable th:first-child, #ResultTable td:first-child {
   border-left: 1px solid black;
 }
-#ResultTable th:last-child, #ResultTable td:last-child{
+
+#ResultTable th:last-child, #ResultTable td:last-child {
   border-right: 1px solid black;
 }
+
 #ResultTable tr:last-child {
   border-bottom: 1px solid black;
 }
-#ResultTable td{
+
+#ResultTable td {
   font-size: 1vw;
   border: 1px solid black;
   border-left: 1px solid black;
   border-right: 1px solid black;
   border-top: 1px solid black;
 }
+
 #ResultTable body {
-  text-align:center;
+  text-align: center;
 }
 
 #wrapParent {
-  margin-left:auto;
-  margin-right:auto;
+  margin-left: auto;
+  margin-right: auto;
   height: 600px;
   width: 733px;
   overflow: hidden;
   /*border: 1px solid black;*/
   border-top: 1px solid black;
 }
+
 #wrap {
   overflow-y: scroll;
   overflow-x: hidden;
