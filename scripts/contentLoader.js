@@ -73,6 +73,7 @@ function updateFromPreset () {
   document.getElementById("airFriction").value = airFriction
   document.getElementById("elevMin").value = vehicleData.elevMin
   document.getElementById("elevMax").value = vehicleData.elevMax
+  document.getElementById("highArc").checked = true
 
   updateManual()
 }
