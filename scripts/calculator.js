@@ -63,7 +63,6 @@ function findMaxAngle (muzzleVelocity, airFriction) {
       bestAngle = testAngle
       bestDistance = testResultDist
     }
-    //console.log(Math.round(bestAngle * 180 / Math.PI), Math.round(bestDistance), Math.round(testResultDist))
   }
   return {bestAngle, bestDistance}
 }

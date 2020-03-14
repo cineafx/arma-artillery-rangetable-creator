@@ -41,9 +41,7 @@ function loadCharges () {
 }
 
 async function fillTable (muzzleVelocity, airFriction, minElev, maxElev, highArc = true) {
-  console.log("----- START -----")
   let tableData = calculate(muzzleVelocity, airFriction, minElev, maxElev, highArc)
-  console.log(tableData)
   let resultTableBody = document.getElementById("ResultTableData")
   resultTableBody.innerHTML = ""
 
@@ -60,7 +58,6 @@ async function fillTable (muzzleVelocity, airFriction, minElev, maxElev, highArc
     }
     resultTableBody.appendChild(tr)
   }
-  console.log("----- DONE -----")
 }
 
 function updateFromPreset () {
@@ -72,10 +69,21 @@ function updateFromPreset () {
   let muzzleVelocity = vehicleData.initSpeed * vehicleData.charges[parseInt(chargeId)]
   let airFriction = airResistanceEnabled ? vehicleData.airFrictionIfUsed : 0.0
 
-  fillTable(muzzleVelocity, airFriction, vehicleData.elevMin, vehicleData.elevMax, true)
+  document.getElementById("muzzleVelocity").value = muzzleVelocity
+  document.getElementById("airFriction").value = airFriction
+  document.getElementById("elevMin").value = vehicleData.elevMin
+  document.getElementById("elevMax").value = vehicleData.elevMax
+
+  updateManual()
 }
 
 function updateManual () {
+  let muzzleVelocity = document.getElementById("muzzleVelocity").value
+  let airFriction = document.getElementById("airFriction").value
+  let elevMin = document.getElementById("elevMin").value
+  let elevMax = document.getElementById("elevMax").value
+  let highArc = document.getElementById("highArc").checked
 
+  fillTable(muzzleVelocity, airFriction, elevMin, elevMax, highArc)
 }
 
