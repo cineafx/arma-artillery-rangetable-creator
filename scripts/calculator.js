@@ -36,12 +36,10 @@ function simulateShot (fireAngleRad, muzzleVelocity, heightOfTarget, crossWind, 
     currentPosition = Vector3.add(currentPosition, Vector3.multiply(currentVelocity, timeStep))
     currentTime += timeStep
   }
-  //TODO: there is some huge error in here
 
   const lastCurrentRatio = (heightOfTarget - currentPosition.z) / (lastPosition.z - currentPosition.z)
   let finalPos = Vector3.lerp(lastPosition, currentPosition, lastCurrentRatio)
 
-  console.log(fireAngleRad * 180 / Math.PI, muzzleVelocity, heightOfTarget, crossWind, tailWind, temperature, airDensity, airFriction, finalPos.y)
   return {finalPosX: finalPos.x, finalPosY: finalPos.y, currentTime}
 }
 

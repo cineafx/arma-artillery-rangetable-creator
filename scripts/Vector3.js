@@ -57,6 +57,6 @@ const Vector3 = class vector3 {
 
   /* ---------- get ---------- */
   get magnitude () {
-    return this.x * this.x + this.y * this.y + this.z * this.z
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
   }
 }

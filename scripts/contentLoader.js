@@ -12,7 +12,7 @@ function loadVehicles () {
     option.text = `[${vehicles[vehicleId].mod}] ${vehicles[vehicleId].name}`
     list.add(option)
   }
-  list[1].selected = true //TODO: remove
+  //list[1].selected = true //TODO: remove
   loadCharges()
 }
 
