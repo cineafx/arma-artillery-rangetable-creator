@@ -69,7 +69,7 @@ function updateFromPreset () {
   let muzzleVelocity = vehicleData.initSpeed * vehicleData.charges[parseInt(chargeId)]
   let airFriction = airResistanceEnabled ? vehicleData.airFrictionIfUsed : 0.0
 
-  document.getElementById("muzzleVelocity").value = muzzleVelocity
+  document.getElementById("muzzleVelocity").value = Math.round(muzzleVelocity * 100) / 100
   document.getElementById("airFriction").value = airFriction
   document.getElementById("elevMin").value = vehicleData.elevMin
   document.getElementById("elevMax").value = vehicleData.elevMax

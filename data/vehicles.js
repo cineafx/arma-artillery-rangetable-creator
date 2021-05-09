@@ -53,6 +53,44 @@ const vehicles = [
     "elevMax": 88,
     "charges": [0.35, 0.7, 1, 1.2512]
   },
+
+  {
+    "mod": "BW",
+    "name": "Mortar 120mm (HE)",
+    "airFrictionIfUsed": -0.0001,
+    "initSpeed": 317,
+    "elevMin": 45,
+    "elevMax": 88,
+    "charges": [0.35, 0.55, 0.7, 0.89]
+  },
+  {
+    "mod": "BW",
+    "name": "Mortar 120mm (HE approx)",
+    "airFrictionIfUsed": -0.0001,
+    "initSpeed": 322,
+    "elevMin": 45,
+    "elevMax": 88,
+    "charges": [0.35, 0.55, 0.7, 0.89]
+  },
+  {
+    "mod": "BW",
+    "name": "Mortar 120mm (Flare)",
+    "airFrictionIfUsed": -0.0001,
+    "initSpeed": 320,
+    "elevMin": 45,
+    "elevMax": 88,
+    "charges": [0.35, 0.55, 0.7, 0.89]
+  },
+  {
+    "mod": "BW",
+    "name": "Mortar 120mm (Smoke)",
+    "airFrictionIfUsed": -0.0001,
+    "initSpeed": 315,
+    "elevMin": 45,
+    "elevMax": 88,
+    "charges": [0.35, 0.55, 0.7, 0.89]
+  },
+
   {
     "mod": "ACE",
     "name": "Sholef",
