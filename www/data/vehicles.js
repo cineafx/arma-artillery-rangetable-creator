@@ -12,10 +12,10 @@ const vehicles = [
     "mod": "BAF",
     "name": "L16",
     "airFrictionIfUsed": -0.0001,
-    "initSpeed": 200,
+    "initSpeed": 314,
     "elevMin": 45,
     "elevMax": 88,
-    "charges": [0.35, 0.7, 1]
+    "charges": [0.254777, 0.420382, 0.570064, 0.694268, 0.805732, 0.904459, 1]
   },
   {
     "mod": "BAF",
